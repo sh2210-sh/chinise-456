@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중국어 학습 앱 — 4·5·6과</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f9f7;color:#1a1a1a;min-height:100vh;padding:1rem}
+.app{max-width:700px;margin:0 auto}
+h1{font-size:18px;font-weight:600;margin-bottom:1rem;color:#1a1a1a}
+.tabs{display:flex;gap:5px;margin-bottom:1.2rem;flex-wrap:wrap}
+.tab{padding:7px 13px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;color:#666;position:relative;transition:all .15s}
+.tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:500}
+.badge{position:absolute;top:-6px;right:-6px;background:#e24b4a;color:#fff;font-size:10px;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center}
+.section{display:none}.section.active{display:block}
+
+/* Card */
+.card-box{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:1.5rem;text-align:center;min-height:200px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;user-select:none;transition:border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-box:hover{border-color:#aaa}
+.hz{font-size:50px;line-height:1;color:#1a1a1a}
+.py{font-size:18px;color:#4340b0;font-weight:600}
+.tn-tag{font-size:12px;color:#0a6644;background:#e0f5ee;padding:3px 10px;border-radius:20px;display:inline-block}
+.mn-text{font-size:15px;color:#555}
+.ls-tag{font-size:11px;color:#3c2e8c;background:#eeecfe;padding:2px 8px;border-radius:20px;display:inline-block}
+.flip-hint{font-size:11px;color:#aaa;margin-top:4px}
+
+/* Buttons */
+.btn{padding:7px 14px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#1a1a1a;transition:all .15s}
+.btn:hover{background:#f3f3f1}
+.btn.prim{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:500}
+.btn.prim:hover{background:#333}
+.btn.ok-btn{border-color:#1d9e75;color:#085041;background:#e0f5ee}
+.btn.ng-btn{border-color:#e24b4a;color:#791f1f;background:#fcebeb}
+.btn-row{display:flex;gap:7px;margin-top:.8rem;justify-content:center;flex-wrap:wrap}
+.know-row{display:flex;gap:8px;margin-top:.8rem;justify-content:center}
+
+/* Progress */
+.pb-wrap{background:#eee;border-radius:4px;height:4px;margin-bottom:.7rem;overflow:hidden}
+.pb{height:4px;background:#4340b0;border-radius:4px;transition:width .3s}
+.prog{font-size:12px;color:#888;margin-bottom:5px;display:flex;justify-content:space-between}
+
+/* Filters */
+.fr{display:flex;gap:5px;margin-bottom:.8rem;flex-wrap:wrap}
+.fb{padding:5px 11px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-size:12px;color:#666}
+.fb.active{background:#eeecfe;border-color:#4340b0;color:#3c2e8c}
+
+/* Type pills */
+.tp{display:flex;gap:5px;margin-bottom:.8rem;flex-wrap:wrap}
+.tp button{padding:5px 11px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-size:12px;color:#666}
+.tp button.active{background:#4340b0;color:#fff;border-color:#4340b0}
+
+/* Quiz */
+.q-type{font-size:11px;color:#888;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.q-main{font-size:34px;text-align:center;color:#1a1a1a;margin:.7rem 0;padding:1rem 1.2rem;background:#f3f3f1;border-radius:12px;line-height:1.3}
+.q-main.sent{font-size:19px;line-height:1.7}
+.q-sub{font-size:13px;color:#777;text-align:center;margin-bottom:8px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{padding:11px 14px;border:1px solid #e0e0e0;border-radius:10px;background:#fff;cursor:pointer;font-size:13px;text-align:left;color:#1a1a1a;display:flex;align-items:center;gap:8px;transition:all .15s}
+.opt:hover:not(.dis){background:#f3f3f1}
+.opt.ok{border-color:#1d9e75;background:#e0f5ee;color:#085041}
+.opt.ng{border-color:#e24b4a;background:#fcebeb;color:#791f1f}
+.opt.dis{cursor:default}
+.ol{width:20px;height:20px;border-radius:50%;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;color:#888}
+.opt.ok .ol{background:#1d9e75;color:#fff;border-color:#1d9e75}
+.opt.ng .ol{background:#e24b4a;color:#fff;border-color:#e24b4a}
+.ex-box{margin-top:8px;padding:8px 12px;background:#f3f3f1;border-radius:8px;font-size:12px;color:#666;display:none;line-height:1.6}
+.nxt-wrap{margin-top:10px;text-align:center;display:none}
+
+/* Score */
+.score-box{text-align:center;padding:1.5rem;background:#f3f3f1;border-radius:14px}
+.score-num{font-size:44px;font-weight:700;color:#4340b0}
+
+/* Vocab */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.stat{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:.7rem;text-align:center}
+.stat .sn{font-size:20px;font-weight:600;color:#1a1a1a}
+.stat .sl{font-size:11px;color:#888;margin-top:2px}
+.word-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:7px}
+.wcard{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:10px;text-align:center}
+.wcard.unk{border-color:#e24b4a;background:#fff5f5}
+.wcard .whz{font-size:22px;color:#1a1a1a}
+.wcard .wpy{font-size:11px;color:#4340b0;margin:3px 0;font-weight:500}
+.wcard .wmn{font-size:11px;color:#666}
+.wcard .wls{font-size:10px;color:#aaa;margin-top:2px}
+
+/* Input */
+input[type=text]{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;font-size:15px;color:#1a1a1a;margin:6px 0;outline:none}
+input[type=text]:focus{border-color:#4340b0}
+.fd{font-size:13px;margin-top:6px;padding:9px;border-radius:8px;text-align:center}
+.fd.ok{background:#e0f5ee;color:#085041}
+.fd.ng{background:#fcebeb;color:#791f1f}
+
+/* Wrong note */
+.empty-state{text-align:center;padding:3rem 1rem;color:#888}
+.wrong-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.section-title{font-size:14px;font-weight:600;color:#1a1a1a}
+
+/* TTS */
+.speak-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border:1px solid #c8c4f0;border-radius:20px;background:#f0effe;cursor:pointer;font-size:13px;color:#4340b0;font-weight:500;transition:all .15s;margin-top:6px}
+.speak-btn:hover{background:#dddafc;border-color:#4340b0}
+.speak-btn.speaking{background:#4340b0;color:#fff;border-color:#4340b0;animation:pulse .6s infinite alternate}
+@keyframes pulse{from{opacity:1}to{opacity:.7}}
+.tts-notice{font-size:11px;color:#aaa;text-align:center;margin-top:4px}
+.wcard .speak-sm{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid #c8c4f0;border-radius:20px;background:#f0effe;cursor:pointer;font-size:11px;color:#4340b0;margin-top:4px}
+.wcard .speak-sm:hover{background:#dddafc}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>중국어 학습 앱 — 4·5·6과</h1>
+<div class="tabs">
+  <button class="tab active" id="t-flash" onclick="ST('flash',this)">플래시카드</button>
+  <button class="tab" id="t-q5" onclick="ST('q5',this)">5지선다</button>
+  <button class="tab" id="t-tone" onclick="ST('tone',this)">성조 퀴즈</button>
+  <button class="tab" id="t-py" onclick="ST('py',this)">병음 쓰기</button>
+  <button class="tab" id="t-wr" onclick="ST('wr',this)">오답 노트<span class="badge" id="wb" style="display:none">0</span></button>
+  <button class="tab" id="t-voc" onclick="ST('voc',this)">단어장</button>
+</div>
+
+<!-- FLASH -->
+<div id="flash" class="section active">
+  <div class="fr" id="ff"></div>
+  <div class="prog" id="fp"></div>
+  <div class="pb-wrap"><div class="pb" id="fpb"></div></div>
+  <div class="card-box" onclick="FC()">
+    <div class="hz" id="fh"></div>
+    <div id="fback" style="display:none">
+      <div class="py" id="fy"></div>
+      <div class="tn-tag" id="ft" style="margin:6px auto 4px;display:inline-block"></div>
+      <div class="mn-text" id="fm" style="margin-top:4px"></div>
+      <div class="ls-tag" id="fl" style="margin-top:6px"></div>
+    </div>
+    <div class="flip-hint" id="fhint">클릭해서 뒤집기 ↩</div>
+  </div>
+  <div style="text-align:center;margin-top:8px">
+    <button class="speak-btn" id="flash-speak-btn" onclick="event.stopPropagation();speakCurrent()">🔊 발음 듣기</button>
+    <div class="tts-notice" id="tts-notice" style="display:none">⚠ 브라우저에 중국어 음성이 없어요. Chrome 권장</div>
+  </div>
+  <p style="font-size:11px;color:#aaa;text-align:center;margin-top:4px">뒤집은 후 알면 ✓, 모르면 ✗ 눌러 오답 저장</p>
+  <div class="know-row" id="kr" style="display:none">
+    <button class="btn ok-btn" onclick="MK()">✓ 알아요</button>
+    <button class="btn ng-btn" onclick="MD()">✗ 몰라요</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="PC()">← 이전</button>
+    <button class="btn prim" onclick="SH()">🔀 섞기</button>
+    <button class="btn" onclick="NC()">다음 →</button>
+  </div>
+</div>
+
+<!-- 5지선다 -->
+<div id="q5" class="section">
+  <div class="tp" id="q5tp">
+    <button class="active" onclick="SQT('mn',this)">뜻 고르기</button>
+    <button onclick="SQT('hz',this)">한자 고르기</button>
+    <button onclick="SQT('py',this)">병음 고르기</button>
+    <button onclick="SQT('tn',this)">성조 고르기</button>
+    <button onclick="SQT('st',this)">문장 완성</button>
+    <button onclick="SQT('wr',this)">오답만</button>
+  </div>
+  <div class="fr" id="q5lf"></div>
+  <div class="prog" id="q5pr"></div>
+  <div class="pb-wrap"><div class="pb" id="q5pb"></div></div>
+  <div class="q-type" id="q5qt"></div>
+  <div class="q-main" id="q5qm"></div>
+  <div style="text-align:center;margin-bottom:4px"><button class="speak-btn" id="q5-speak" onclick="speakEl('q5qm')">🔊 발음 듣기</button></div>
+  <div class="q-sub" id="q5qs"></div>
+  <div class="opts" id="q5op"></div>
+  <div class="ex-box" id="q5ex"></div>
+  <div class="nxt-wrap" id="q5nw"><button class="btn prim" onclick="NQ5()">다음 문제 →</button></div>
+  <div id="q5sc" style="display:none"></div>
+</div>
+
+<!-- 성조 -->
+<div id="tone" class="section">
+  <div class="fr">
+    <button class="fb active" id="ta-all" onclick="TSrc('all',this)">전체</button>
+    <button class="fb" id="ta-wr" onclick="TSrc('wr',this)">오답만 <span id="twc"></span></button>
+  </div>
+  <div class="prog" id="tpr"></div>
+  <div class="pb-wrap"><div class="pb" id="tpb"></div></div>
+  <div class="q-main" id="tq"></div>
+  <div style="text-align:center;margin-bottom:4px"><button class="speak-btn" onclick="speakEl('tq')">🔊 발음 듣기</button></div>
+  <p style="font-size:12px;color:#888;text-align:center;margin-bottom:4px">전체 성조 조합을 고르세요 (1성=—, 2성=/, 3성=∨, 4성=\, 경성=·)</p>
+  <p style="font-size:13px;color:#555;text-align:center;margin-bottom:8px;font-weight:500" id="tone-hint"></p>
+  <div class="opts" id="top"></div>
+  <div class="nxt-wrap" id="tnw"><button class="btn prim" onclick="NTQ()">다음 문제 →</button></div>
+  <div id="tsc" style="display:none"></div>
+</div>
+
+<!-- 병음 -->
+<div id="py" class="section">
+  <div class="fr">
+    <button class="fb active" id="pa-all" onclick="PSrc('all',this)">전체</button>
+    <button class="fb" id="pa-wr" onclick="PSrc('wr',this)">오답만 <span id="pwc"></span></button>
+  </div>
+  <div class="prog" id="ppr"></div>
+  <div class="pb-wrap"><div class="pb" id="ppb"></div></div>
+  <div class="q-main" id="pq"></div>
+  <div style="text-align:center;margin-bottom:4px"><button class="speak-btn" onclick="speakEl('pq')">🔊 발음 듣기</button></div>
+  <p style="font-size:12px;color:#888;text-align:center">병음 입력 (예: ni hao / 성조번호 없이 써도 돼요)</p>
+  <input type="text" id="pi" placeholder="병음 입력...">
+  <div class="fd" id="pfd" style="display:none"></div>
+  <div class="btn-row">
+    <button class="btn prim" onclick="CP()">확인</button>
+    <button class="btn" onclick="SP()">건너뛰기</button>
+  </div>
+  <div id="psc" style="display:none"></div>
+</div>
+
+<!-- 오답 노트 -->
+<div id="wr" class="section">
+  <div class="wrong-header">
+    <p class="section-title" id="wt">오답 노트</p>
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
+      <button class="btn" onclick="RW('q5')">5지선다 재시험</button>
+      <button class="btn" onclick="RW('tone')">성조 재시험</button>
+      <button class="btn" onclick="RW('py')">병음 재시험</button>
+      <button class="btn" style="color:#a32d2d" onclick="CW()">전체 삭제</button>
+    </div>
+  </div>
+  <div id="wl"></div>
+</div>
+
+<!-- 단어장 -->
+<div id="voc" class="section">
+  <div class="stats">
+    <div class="stat"><div class="sn" id="vtot"></div><div class="sl">총 단어</div></div>
+    <div class="stat"><div class="sn" id="v4"></div><div class="sl">4과</div></div>
+    <div class="stat"><div class="sn" id="v5"></div><div class="sl">5과</div></div>
+    <div class="stat"><div class="sn" id="v6"></div><div class="sl">6과</div></div>
+  </div>
+  <div class="fr">
+    <button class="fb active" onclick="FV('all',this)">전체</button>
+    <button class="fb" onclick="FV('4',this)">4과</button>
+    <button class="fb" onclick="FV('5',this)">5과</button>
+    <button class="fb" onclick="FV('6',this)">6과</button>
+    <button class="fb" onclick="FV('wr',this)">오답만</button>
+  </div>
+  <div class="word-grid" id="vg"></div>
+</div>
+</div>
+
+<script>
+// =============================================
+// 단어 데이터 — 4·5·6과 전체 (필기+교과서 완전 반영)
+// =============================================
+const W = [
+// ── 4과 ──
+{hz:"你",py:"nǐ",mn:"너",ls:"4",tn:"3"},
+{hz:"的",py:"de",mn:"~의",ls:"4",tn:"0"},
+{hz:"生日",py:"shēngrì",mn:"생일",ls:"4",tn:"1 4"},
+{hz:"是",py:"shì",mn:"~이다",ls:"4",tn:"4"},
+{hz:"几",py:"jǐ",mn:"몇",ls:"4",tn:"3"},
+{hz:"月",py:"yuè",mn:"월",ls:"4",tn:"4"},
+{hz:"号",py:"hào",mn:"일(날짜)",ls:"4",tn:"4"},
+{hz:"几月",py:"jǐ yuè",mn:"몇 월",ls:"4",tn:"3 4"},
+{hz:"几号",py:"jǐ hào",mn:"몇 일",ls:"4",tn:"3 4"},
+{hz:"五月",py:"wǔ yuè",mn:"5월",ls:"4",tn:"3 4"},
+{hz:"十号",py:"shí hào",mn:"10일",ls:"4",tn:"2 4"},
+{hz:"星期",py:"xīngqī",mn:"요일",ls:"4",tn:"1 1"},
+{hz:"星期几",py:"xīngqī jǐ",mn:"무슨 요일",ls:"4",tn:"1 1 3"},
+{hz:"星期一",py:"xīngqī yī",mn:"월요일",ls:"4",tn:"1 1 1"},
+{hz:"星期二",py:"xīngqī èr",mn:"화요일",ls:"4",tn:"1 1 4"},
+{hz:"星期三",py:"xīngqī sān",mn:"수요일",ls:"4",tn:"1 1 1"},
+{hz:"星期四",py:"xīngqī sì",mn:"목요일",ls:"4",tn:"1 1 4"},
+{hz:"星期五",py:"xīngqī wǔ",mn:"금요일",ls:"4",tn:"1 1 3"},
+{hz:"星期六",py:"xīngqī liù",mn:"토요일",ls:"4",tn:"1 1 4"},
+{hz:"星期日",py:"xīngqī rì",mn:"일요일",ls:"4",tn:"1 1 4"},
+{hz:"星期天",py:"xīngqī tiān",mn:"일요일(구어)",ls:"4",tn:"1 1 1"},
+{hz:"今天",py:"jīntiān",mn:"오늘",ls:"4",tn:"1 1"},
+{hz:"前天",py:"qiántiān",mn:"그저께",ls:"4",tn:"2 1"},
+{hz:"昨天",py:"zuótiān",mn:"어제",ls:"4",tn:"2 1"},
+{hz:"明天",py:"míngtiān",mn:"내일",ls:"4",tn:"2 1"},
+{hz:"后天",py:"hòutiān",mn:"모레",ls:"4",tn:"4 1"},
+{hz:"不是",py:"bú shì",mn:"~이 아니다",ls:"4",tn:"2 4"},
+{hz:"儿童节",py:"Értóngjié",mn:"어린이날 (6월1일)",ls:"4",tn:"2 2 2"},
+{hz:"教师节",py:"Jiàoshījié",mn:"스승의 날 (9월10일)",ls:"4",tn:"4 1 2"},
+{hz:"国庆节",py:"Guóqìngjié",mn:"국경절 (10월1일)",ls:"4",tn:"2 4 2"},
+{hz:"长寿面",py:"chángshòumiàn",mn:"장수면",ls:"4",tn:"2 4 4"},
+{hz:"寿桃",py:"shòutáo",mn:"복숭아 모양 찐빵",ls:"4",tn:"4 2"},
+{hz:"现在",py:"xiànzài",mn:"지금, 현재",ls:"4",tn:"4 4"},
+{hz:"几点",py:"jǐ diǎn",mn:"몇 시",ls:"4",tn:"3 3"},
+{hz:"点",py:"diǎn",mn:"시(시각)",ls:"4",tn:"3"},
+{hz:"分",py:"fēn",mn:"분",ls:"4",tn:"1"},
+{hz:"半",py:"bàn",mn:"반, 30분",ls:"4",tn:"4"},
+{hz:"刻",py:"kè",mn:"15분 단위",ls:"4",tn:"4"},
+{hz:"差",py:"chà",mn:"부족하다",ls:"4",tn:"4"},
+{hz:"两点",py:"liǎng diǎn",mn:"2시(两을 사용)",ls:"4",tn:"3 3"},
+{hz:"上学",py:"shàng xué",mn:"등교하다",ls:"4",tn:"4 2"},
+{hz:"起床",py:"qǐchuáng",mn:"기상하다",ls:"4",tn:"3 2"},
+{hz:"上课",py:"shàng kè",mn:"수업하다",ls:"4",tn:"4 4"},
+{hz:"回家",py:"huí jiā",mn:"집에 가다",ls:"4",tn:"2 1"},
+{hz:"睡觉",py:"shuìjiào",mn:"잠을 자다",ls:"4",tn:"4 4"},
+{hz:"早上",py:"zǎoshang",mn:"아침",ls:"4",tn:"3 0"},
+{hz:"上午",py:"shàngwǔ",mn:"오전",ls:"4",tn:"4 3"},
+{hz:"中午",py:"zhōngwǔ",mn:"정오",ls:"4",tn:"1 3"},
+{hz:"下午",py:"xiàwǔ",mn:"오후",ls:"4",tn:"4 3"},
+{hz:"晚上",py:"wǎnshang",mn:"저녁",ls:"4",tn:"3 0"},
+{hz:"祝你生日快乐",py:"Zhù nǐ shēngrì kuàilè",mn:"생일 축하해",ls:"4",tn:"4 3 1 4 4 4"},
+{hz:"快乐",py:"kuàilè",mn:"즐겁다",ls:"4",tn:"4 4"},
+{hz:"春节",py:"Chūnjié",mn:"춘절 (음력1월1일)",ls:"4",tn:"1 2"},
+{hz:"饺子",py:"jiǎozi",mn:"교자(만두)",ls:"4",tn:"3 0"},
+{hz:"红包",py:"hóngbāo",mn:"세뱃돈 봉투",ls:"4",tn:"2 1"},
+{hz:"压岁钱",py:"yāsuìqián",mn:"세뱃돈",ls:"4",tn:"1 4 2"},
+{hz:"端午节",py:"Duānwǔjié",mn:"단오절 (음력5월5일)",ls:"4",tn:"1 3 2"},
+{hz:"粽子",py:"zòngzi",mn:"쫑쯔(찹쌀밥)",ls:"4",tn:"4 0"},
+{hz:"中秋节",py:"Zhōngqiūjié",mn:"중추절 (음력8월15일)",ls:"4",tn:"1 1 2"},
+{hz:"月饼",py:"yuèbing",mn:"월병",ls:"4",tn:"4 0"},
+{hz:"劳动节",py:"Láodòngjié",mn:"노동절 (양력5월1일)",ls:"4",tn:"2 4 2"},
+{hz:"天安门",py:"Tiān'ānmén",mn:"천안문",ls:"4",tn:"1 1 2"},
+{hz:"剪纸",py:"jiǎnzhǐ",mn:"종이공예",ls:"4",tn:"3 3"},
+{hz:"春天",py:"chūntiān",mn:"봄",ls:"4",tn:"1 1"},
+{hz:"夏天",py:"xiàtiān",mn:"여름",ls:"4",tn:"4 1"},
+{hz:"秋天",py:"qiūtiān",mn:"가을",ls:"4",tn:"1 1"},
+{hz:"冬天",py:"dōngtiān",mn:"겨울",ls:"4",tn:"1 1"},
+
+// ── 5과 ──
+{hz:"爱好",py:"àihào",mn:"취미",ls:"5",tn:"4 4"},
+{hz:"喜欢",py:"xǐhuan",mn:"좋아하다",ls:"5",tn:"3 0"},
+{hz:"有",py:"yǒu",mn:"있다, 가지다",ls:"5",tn:"3"},
+{hz:"什么",py:"shénme",mn:"무엇, 무슨",ls:"5",tn:"2 0"},
+{hz:"拍",py:"pāi",mn:"찍다",ls:"5",tn:"1"},
+{hz:"视频",py:"shìpín",mn:"동영상",ls:"5",tn:"4 2"},
+{hz:"拍视频",py:"pāi shìpín",mn:"동영상을 찍다",ls:"5",tn:"1 4 2"},
+{hz:"将来",py:"jiānglái",mn:"장래, 장차",ls:"5",tn:"1 2"},
+{hz:"想",py:"xiǎng",mn:"~하고 싶다",ls:"5",tn:"3"},
+{hz:"当",py:"dāng",mn:"~이 되다",ls:"5",tn:"1"},
+{hz:"想当",py:"xiǎng dāng",mn:"~가 되고 싶다",ls:"5",tn:"3 1"},
+{hz:"网红",py:"wǎnghóng",mn:"인플루언서(왕훙)",ls:"5",tn:"3 2"},
+{hz:"因特网",py:"yīntèwǎng",mn:"인터넷",ls:"5",tn:"1 4 3"},
+{hz:"因特网红人",py:"yīntè wǎnghóng rén",mn:"인터넷 유명인사",ls:"5",tn:"1 4 3 2 2"},
+{hz:"做",py:"zuò",mn:"만들다, 하다",ls:"5",tn:"4"},
+{hz:"做菜",py:"zuò cài",mn:"요리하다",ls:"5",tn:"4 4"},
+{hz:"菜",py:"cài",mn:"요리, 반찬",ls:"5",tn:"4"},
+{hz:"听",py:"tīng",mn:"듣다",ls:"5",tn:"1"},
+{hz:"音乐",py:"yīnyuè",mn:"음악",ls:"5",tn:"1 4"},
+{hz:"听音乐",py:"tīng yīnyuè",mn:"음악을 듣다",ls:"5",tn:"1 1 4"},
+{hz:"看",py:"kàn",mn:"보다",ls:"5",tn:"4"},
+{hz:"电影",py:"diànyǐng",mn:"영화",ls:"5",tn:"4 3"},
+{hz:"看电影",py:"kàn diànyǐng",mn:"영화를 보다",ls:"5",tn:"4 4 3"},
+{hz:"医生",py:"yīshēng",mn:"의사",ls:"5",tn:"1 1"},
+{hz:"作家",py:"zuòjiā",mn:"작가",ls:"5",tn:"4 1"},
+{hz:"运动员",py:"yùndòngyuán",mn:"운동선수",ls:"5",tn:"4 4 2"},
+{hz:"汉语",py:"hànyǔ",mn:"중국어",ls:"5",tn:"4 3"},
+{hz:"老师",py:"lǎoshī",mn:"선생님",ls:"5",tn:"3 1"},
+{hz:"汉语老师",py:"hànyǔ lǎoshī",mn:"중국어 선생님",ls:"5",tn:"4 3 3 1"},
+{hz:"会",py:"huì",mn:"할 줄 알다 (배워서)",ls:"5",tn:"4"},
+{hz:"不会",py:"bú huì",mn:"할 줄 모르다",ls:"5",tn:"2 4"},
+{hz:"能",py:"néng",mn:"할 수 있다 (능력)",ls:"5",tn:"2"},
+{hz:"能做到",py:"néng zuò dào",mn:"다 할 수 있어!",ls:"5",tn:"2 4 4"},
+{hz:"打",py:"dǎ",mn:"치다 (운동에 사용)",ls:"5",tn:"3"},
+{hz:"踢",py:"tī",mn:"차다 (발로 찰 때)",ls:"5",tn:"1"},
+{hz:"乒乓球",py:"pīngpāngqiú",mn:"탁구",ls:"5",tn:"1 1 2"},
+{hz:"打乒乓球",py:"dǎ pīngpāngqiú",mn:"탁구 치다",ls:"5",tn:"3 1 1 2"},
+{hz:"一起",py:"yìqǐ",mn:"함께, 같이",ls:"5",tn:"4 3"},
+{hz:"吧",py:"ba",mn:"~하자 (제안)",ls:"5",tn:"0"},
+{hz:"得",py:"de",mn:"정도보어 연결 (술어+得+보어)",ls:"5",tn:"0"},
+{hz:"不错",py:"búcuò",mn:"좋다, 괜찮다",ls:"5",tn:"2 4"},
+{hz:"哪儿啊",py:"Nǎr a",mn:"별일~(겸손 표현)",ls:"5",tn:"3 0"},
+{hz:"非常",py:"fēicháng",mn:"대단히, 매우",ls:"5",tn:"1 2"},
+{hz:"太",py:"tài",mn:"너무, 매우",ls:"5",tn:"4"},
+{hz:"很",py:"hěn",mn:"매우, 아주",ls:"5",tn:"3"},
+{hz:"真棒",py:"zhēn bàng",mn:"정말 훌륭해!",ls:"5",tn:"1 4"},
+{hz:"真",py:"zhēn",mn:"정말",ls:"5",tn:"1"},
+{hz:"好极了",py:"hǎo jí le",mn:"아주 좋아!",ls:"5",tn:"3 2 0"},
+{hz:"很厉害",py:"hěn lìhai",mn:"매우 대단하다",ls:"5",tn:"3 4 0"},
+{hz:"写",py:"xiě",mn:"(글씨를) 쓰다",ls:"5",tn:"3"},
+{hz:"唱",py:"chàng",mn:"노래하다",ls:"5",tn:"4"},
+{hz:"画",py:"huà",mn:"그리다",ls:"5",tn:"4"},
+{hz:"篮球",py:"lánqiú",mn:"농구",ls:"5",tn:"2 2"},
+{hz:"打篮球",py:"dǎ lánqiú",mn:"농구 하다",ls:"5",tn:"3 2 2"},
+{hz:"太极拳",py:"tàijíquán",mn:"태극권",ls:"5",tn:"4 2 2"},
+{hz:"打太极拳",py:"dǎ tàijíquán",mn:"태극권을 하다",ls:"5",tn:"3 4 2 2"},
+{hz:"足球",py:"zúqiú",mn:"축구",ls:"5",tn:"2 2"},
+{hz:"踢足球",py:"tī zúqiú",mn:"축구 하다",ls:"5",tn:"1 2 2"},
+{hz:"看书",py:"kàn shū",mn:"책을 읽다",ls:"5",tn:"4 1"},
+{hz:"唱歌",py:"chàng gē",mn:"노래를 부르다",ls:"5",tn:"4 1"},
+{hz:"歌",py:"gē",mn:"노래",ls:"5",tn:"1"},
+{hz:"运动",py:"yùndòng",mn:"운동하다",ls:"5",tn:"4 4"},
+{hz:"玩",py:"wán",mn:"놀다",ls:"5",tn:"2"},
+{hz:"游戏",py:"yóuxì",mn:"게임",ls:"5",tn:"2 4"},
+{hz:"玩游戏",py:"wán yóuxì",mn:"게임을 하다",ls:"5",tn:"2 2 4"},
+{hz:"京剧",py:"jīngjù",mn:"경극 (베이징 오페라)",ls:"5",tn:"1 4"},
+{hz:"变脸",py:"biànliǎn",mn:"변검 (얼굴 바꾸는 연기기법)",ls:"5",tn:"4 3"},
+{hz:"皮影戏",py:"píyǐngxì",mn:"그림자극",ls:"5",tn:"2 3 4"},
+{hz:"空竹",py:"kōngzhú",mn:"죽방울",ls:"5",tn:"1 2"},
+{hz:"你打得不错",py:"nǐ dǎ de búcuò",mn:"너 잘 친다",ls:"5",tn:"3 3 0 2 4"},
+{hz:"你写得很好",py:"nǐ xiě de hěn hǎo",mn:"너 글씨 매우 잘 써",ls:"5",tn:"3 3 0 3 3"},
+{hz:"你唱得非常好",py:"nǐ chàng de fēicháng hǎo",mn:"너 노래 정말 잘 불러",ls:"5",tn:"3 3 0 1 2 3"},
+{hz:"你画得不太好",py:"nǐ huà de bú tài hǎo",mn:"너 그림 그다지 잘 못 그려",ls:"5",tn:"3 3 0 2 4 3"},
+{hz:"你做得很好",py:"nǐ zuò de hěn hǎo",mn:"정말 잘 했어요!",ls:"5",tn:"3 3 0 3 3"},
+
+// ── 6과 ──
+{hz:"怎么",py:"zěnme",mn:"어떻게",ls:"6",tn:"3 0"},
+{hz:"去",py:"qù",mn:"가다",ls:"6",tn:"4"},
+{hz:"怎么去",py:"zěnme qù",mn:"어떻게 가다",ls:"6",tn:"3 0 4"},
+{hz:"坐",py:"zuò",mn:"타다, 앉다",ls:"6",tn:"4"},
+{hz:"地铁",py:"dìtiě",mn:"지하철",ls:"6",tn:"4 3"},
+{hz:"坐地铁",py:"zuò dìtiě",mn:"지하철 타다",ls:"6",tn:"4 4 3"},
+{hz:"站",py:"zhàn",mn:"역",ls:"6",tn:"4"},
+{hz:"地铁站",py:"dìtiězhàn",mn:"지하철역",ls:"6",tn:"4 3 4"},
+{hz:"远",py:"yuǎn",mn:"멀다",ls:"6",tn:"3"},
+{hz:"不远",py:"bù yuǎn",mn:"멀지 않다",ls:"6",tn:"4 3"},
+{hz:"近",py:"jìn",mn:"가깝다",ls:"6",tn:"4"},
+{hz:"往",py:"wǎng",mn:"~을 향해",ls:"6",tn:"3"},
+{hz:"前",py:"qián",mn:"앞",ls:"6",tn:"2"},
+{hz:"走",py:"zǒu",mn:"걷다",ls:"6",tn:"3"},
+{hz:"往前走",py:"wǎng qián zǒu",mn:"앞으로 걷다",ls:"6",tn:"3 2 3"},
+{hz:"就",py:"jiù",mn:"바로, 곧",ls:"6",tn:"4"},
+{hz:"到",py:"dào",mn:"도착하다",ls:"6",tn:"4"},
+{hz:"了",py:"le",mn:"변화 나타냄 (완료)",ls:"6",tn:"0"},
+{hz:"就到了",py:"jiù dào le",mn:"바로 도착했다",ls:"6",tn:"4 4 0"},
+{hz:"往前走就到了",py:"wǎng qián zǒu jiù dào le",mn:"앞으로 걸으면 바로 도착해",ls:"6",tn:"3 2 3 4 4 0"},
+{hz:"办",py:"bàn",mn:"하다, 처리하다",ls:"6",tn:"4"},
+{hz:"念",py:"niàn",mn:"읽다",ls:"6",tn:"4"},
+{hz:"怎么办",py:"zěnme bàn",mn:"어떻게 해요?",ls:"6",tn:"3 0 4"},
+{hz:"怎么念",py:"zěnme niàn",mn:"어떻게 읽어요?",ls:"6",tn:"3 0 4"},
+{hz:"火车",py:"huǒchē",mn:"기차",ls:"6",tn:"3 1"},
+{hz:"坐火车",py:"zuò huǒchē",mn:"기차 타다",ls:"6",tn:"4 3 1"},
+{hz:"公交车",py:"gōngjiāochē",mn:"버스",ls:"6",tn:"1 1 1"},
+{hz:"坐公交车",py:"zuò gōngjiāochē",mn:"버스 타다",ls:"6",tn:"4 1 1 1"},
+{hz:"公共汽车",py:"gōnggòng qìchē",mn:"버스 (공공버스)",ls:"6",tn:"1 4 4 1"},
+{hz:"坐公共汽车",py:"zuò gōnggòng qìchē",mn:"버스 타고 가다",ls:"6",tn:"4 1 4 4 1"},
+{hz:"骑",py:"qí",mn:"타다 (자전거·오토바이)",ls:"6",tn:"2"},
+{hz:"自行车",py:"zìxíngchē",mn:"자전거",ls:"6",tn:"4 2 1"},
+{hz:"骑自行车",py:"qí zìxíngchē",mn:"자전거 타다",ls:"6",tn:"2 4 2 1"},
+{hz:"出租车",py:"chūzūchē",mn:"택시",ls:"6",tn:"1 1 1"},
+{hz:"坐出租车",py:"zuò chūzūchē",mn:"택시 타다",ls:"6",tn:"4 1 1 1"},
+{hz:"摩托车",py:"mótuōchē",mn:"오토바이",ls:"6",tn:"2 1 1"},
+{hz:"骑摩托车",py:"qí mótuōchē",mn:"오토바이 타다",ls:"6",tn:"2 2 1 1"},
+{hz:"飞机",py:"fēijī",mn:"비행기",ls:"6",tn:"1 1"},
+{hz:"坐飞机",py:"zuò fēijī",mn:"비행기 타다",ls:"6",tn:"4 1 1"},
+{hz:"左",py:"zuǒ",mn:"왼쪽",ls:"6",tn:"3"},
+{hz:"右",py:"yòu",mn:"오른쪽",ls:"6",tn:"4"},
+{hz:"拐",py:"guǎi",mn:"돌다",ls:"6",tn:"3"},
+{hz:"往左拐",py:"wǎng zuǒ guǎi",mn:"왼쪽으로 돌다",ls:"6",tn:"3 3 3"},
+{hz:"往右拐",py:"wǎng yòu guǎi",mn:"오른쪽으로 돌다",ls:"6",tn:"3 4 3"},
+{hz:"硬座",py:"yìngzuò",mn:"딱딱한 일반 좌석",ls:"6",tn:"4 4"},
+{hz:"软座",py:"ruǎnzuò",mn:"푹신한 고급 좌석",ls:"6",tn:"3 4"},
+{hz:"硬卧",py:"yìngwò",mn:"딱딱한 일반 침대칸",ls:"6",tn:"4 4"},
+{hz:"软卧",py:"ruǎnwò",mn:"푹신한 고급 침대칸",ls:"6",tn:"3 4"},
+{hz:"有点儿",py:"yǒudiǎnr",mn:"조금, 약간",ls:"6",tn:"3 3"},
+{hz:"头疼",py:"tóuténg",mn:"머리가 아프다",ls:"6",tn:"2 2"},
+{hz:"有点儿头疼",py:"yǒudiǎnr tóuténg",mn:"머리가 좀 아프다",ls:"6",tn:"3 3 2 2"},
+{hz:"医院",py:"yīyuàn",mn:"병원",ls:"6",tn:"1 4"},
+{hz:"去医院",py:"qù yīyuàn",mn:"병원에 가다",ls:"6",tn:"4 1 4"},
+{hz:"看看",py:"kànkan",mn:"가보다, 살펴보다",ls:"6",tn:"4 0"},
+{hz:"在",py:"zài",mn:"~에 있다",ls:"6",tn:"4"},
+{hz:"哪儿",py:"nǎr",mn:"어디",ls:"6",tn:"3"},
+{hz:"学校",py:"xuéxiào",mn:"학교",ls:"6",tn:"2 4"},
+{hz:"旁边",py:"pángbiān",mn:"옆",ls:"6",tn:"2 1"},
+{hz:"发烧",py:"fāshāo",mn:"열이 나다",ls:"6",tn:"1 1"},
+{hz:"咳嗽",py:"késou",mn:"기침하다",ls:"6",tn:"2 0"},
+{hz:"流鼻涕",py:"liú bítì",mn:"콧물이 흐르다",ls:"6",tn:"2 2 4"},
+{hz:"银行",py:"yínháng",mn:"은행",ls:"6",tn:"2 2"},
+{hz:"左边",py:"zuǒbian",mn:"왼쪽",ls:"6",tn:"3 0"},
+{hz:"右边",py:"yòubian",mn:"오른쪽",ls:"6",tn:"4 0"},
+{hz:"超市",py:"chāoshì",mn:"슈퍼마켓",ls:"6",tn:"1 4"},
+{hz:"洗手间",py:"xǐshǒujiān",mn:"화장실",ls:"6",tn:"3 3 1"},
+{hz:"前边",py:"qiánbian",mn:"앞쪽",ls:"6",tn:"2 0"},
+{hz:"后边",py:"hòubian",mn:"뒤쪽",ls:"6",tn:"4 0"},
+{hz:"市场",py:"shìchǎng",mn:"시장",ls:"6",tn:"4 3"},
+{hz:"邮局",py:"yóujú",mn:"우체국",ls:"6",tn:"2 2"},
+];
+
+// =============================================
+// 문장 퀴즈 데이터 — 빈칸 완성 (4·5·6과)
+// =============================================
+const SENTS = [
+// 4과
+{tx:"你的生日___几月几号？",ans:"是",opts:["是","在","有","当","的"],py:"Nǐ de shēngrì shì jǐ yuè jǐ hào?",mn:"너의 생일은 몇 월 몇 일이니?",ls:"4"},
+{tx:"___月十号。",ans:"五",opts:["五","六","七","八","十"],py:"Wǔ yuè shí hào.",mn:"5월 10일이야.",ls:"4"},
+{tx:"今天___是星期四。",ans:"不",opts:["不","没","很","也","都"],py:"Jīntiān bú shì xīngqī sì.",mn:"오늘은 목요일이 아니다.",ls:"4"},
+{tx:"___在几点？",ans:"现",opts:["现","今","明","昨","前"],py:"Xiànzài jǐ diǎn?",mn:"지금 몇 시야?",ls:"4"},
+{tx:"七点十___。",ans:"分",opts:["分","刻","半","点","时"],py:"Qī diǎn shí fēn.",mn:"7시 10분이야.",ls:"4"},
+{tx:"我七点___上学。",ans:"半",opts:["半","分","刻","差","点"],py:"Wǒ qī diǎn bàn shàng xué.",mn:"나는 7시 반에 등교해.",ls:"4"},
+{tx:"十五分等于一___。",ans:"刻",opts:["刻","半","分","时","点"],py:"Shíwǔ fēn děngyú yī kè.",mn:"15분은 1각이에요.",ls:"4"},
+{tx:"差十分___点。",ans:"八",opts:["八","七","六","九","十"],py:"Chà shí fēn bā diǎn.",mn:"8시 10분 전이야.",ls:"4"},
+{tx:"我六点半起___。",ans:"床",opts:["床","家","学","课","觉"],py:"Wǒ liù diǎn bàn qǐchuáng.",mn:"나는 6시 반에 기상해.",ls:"4"},
+{tx:"我十一点三刻睡___。",ans:"觉",opts:["觉","家","床","学","课"],py:"Wǒ shíyī diǎn sān kè shuìjiào.",mn:"나는 11시 45분에 잠들어.",ls:"4"},
+{tx:"祝你生日___乐！",ans:"快",opts:["快","高","好","大","长"],py:"Zhù nǐ shēngrì kuàilè!",mn:"생일 축하해!",ls:"4"},
+{tx:"春节是音历一月一___。",ans:"号",opts:["号","日","天","月","年"],py:"Chūnjié shì yīnlì yī yuè yī hào.",mn:"춘절은 음력 1월 1일이야.",ls:"4"},
+{tx:"端午节吃___子。",ans:"粽",opts:["粽","饺","寿","月","红"],py:"Duānwǔjié chī zòngzi.",mn:"단오절에 쫑쯔를 먹어.",ls:"4"},
+{tx:"中秋节吃月___。",ans:"饼",opts:["饼","桃","面","包","子"],py:"Zhōngqiūjié chī yuèbǐng.",mn:"중추절에 월병을 먹어.",ls:"4"},
+
+// 5과
+{tx:"你有什么爱___？",ans:"好",opts:["好","做","喜","趣","乐"],py:"Nǐ yǒu shénme àihào?",mn:"너는 취미가 뭐야?",ls:"5"},
+{tx:"我___欢拍视频。",ans:"喜",opts:["喜","爱","很","会","想"],py:"Wǒ xǐhuān pāi shìpín.",mn:"나는 동영상 찍는 걸 좋아해.",ls:"5"},
+{tx:"你将来___当什么？",ans:"想",opts:["想","会","能","喜","爱"],py:"Nǐ jiānglái xiǎng dāng shénme?",mn:"너는 장래에 무엇이 되고 싶어?",ls:"5"},
+{tx:"我想当___生。",ans:"医",opts:["医","老","学","运","作"],py:"Wǒ xiǎng dāng yīshēng.",mn:"나는 의사가 되고 싶어.",ls:"5"},
+{tx:"我想当作___。",ans:"家",opts:["家","生","员","师","人"],py:"Wǒ xiǎng dāng zuòjiā.",mn:"나는 작가가 되고 싶어.",ls:"5"},
+{tx:"我想当运动___。",ans:"员",opts:["员","生","家","师","人"],py:"Wǒ xiǎng dāng yùndòngyuán.",mn:"나는 운동선수가 되고 싶어.",ls:"5"},
+{tx:"你___打乒乓球吗？",ans:"会",opts:["会","能","想","喜","可"],py:"Nǐ huì dǎ pīngpāngqiú ma?",mn:"너 탁구 칠 줄 알아?",ls:"5"},
+{tx:"会。我们___起打吧。",ans:"一",opts:["一","大","两","共","都"],py:"Huì. Wǒmen yīqǐ dǎ ba.",mn:"알아. 우리 함께 치자.",ls:"5"},
+{tx:"啊，你打___不错！",ans:"得",opts:["得","的","地","了","着"],py:"Ā, nǐ dǎ de búcuò!",mn:"아, 너 잘 친다!",ls:"5"},
+{tx:"你写得很___！",ans:"好",opts:["好","对","行","棒","错"],py:"Nǐ xiě de hěn hǎo!",mn:"너 글씨 잘 써!",ls:"5"},
+{tx:"你唱得___常好！",ans:"非",opts:["非","很","太","真","最"],py:"Nǐ chàng de fēicháng hǎo!",mn:"너 노래 정말 잘 불러!",ls:"5"},
+{tx:"你画得不___好。",ans:"太",opts:["太","很","非","真","大"],py:"Nǐ huà de bú tài hǎo.",mn:"너 그림 그다지 잘 못 그려.",ls:"5"},
+{tx:"真___！",ans:"棒",opts:["棒","好","对","行","错"],py:"Zhēn bàng!",mn:"정말 훌륭해!",ls:"5"},
+{tx:"好___了！",ans:"极",opts:["极","很","太","非","真"],py:"Hǎo jí le!",mn:"아주 좋아!",ls:"5"},
+{tx:"我喜欢做___。",ans:"菜",opts:["菜","饭","面","包","汤"],py:"Wǒ xǐhuān zuò cài.",mn:"나는 요리하는 걸 좋아해.",ls:"5"},
+{tx:"我喜欢听音___。",ans:"乐",opts:["乐","歌","曲","调","声"],py:"Wǒ xǐhuān tīng yīnyuè.",mn:"나는 음악 듣는 걸 좋아해.",ls:"5"},
+{tx:"我会踢足___。",ans:"球",opts:["球","棒","拳","场","赛"],py:"Wǒ huì tī zúqiú.",mn:"나는 축구 할 수 있어.",ls:"5"},
+
+// 6과
+{tx:"你怎么___天安门？",ans:"去",opts:["去","到","走","来","往"],py:"Nǐ zěnme qù Tiān'ānmén?",mn:"너는 천安门에 어떻게 가니?",ls:"6"},
+{tx:"我___地铁去。",ans:"坐",opts:["坐","骑","开","走","乘"],py:"Wǒ zuò dìtiě qù.",mn:"나 지하철 타고 가.",ls:"6"},
+{tx:"地铁站___吗？",ans:"远",opts:["远","近","大","小","多"],py:"Dìtiě zhàn yuǎn ma?",mn:"지하철역은 멀어?",ls:"6"},
+{tx:"不远，往前走___到了。",ans:"就",opts:["就","才","都","还","又"],py:"Bù yuǎn, wǎng qián zǒu jiù dào le.",mn:"안 멀어, 앞으로 걸으면 바로 도착해.",ls:"6"},
+{tx:"___左拐就到了。",ans:"往",opts:["往","向","朝","对","从"],py:"Wǎng zuǒ guǎi jiù dào le.",mn:"왼쪽으로 돌면 바로 도착해.",ls:"6"},
+{tx:"我___自行车去。",ans:"骑",opts:["骑","坐","开","走","乘"],py:"Wǒ qí zìxíngchē qù.",mn:"나 자전거 타고 가.",ls:"6"},
+{tx:"我坐公共汽___去。",ans:"车",opts:["车","机","船","艇","铁"],py:"Wǒ zuò gōnggòng qìchē qù.",mn:"나 버스 타고 가.",ls:"6"},
+{tx:"医院在___儿？",ans:"哪",opts:["哪","这","那","这里","哪里"],py:"Yīyuàn zài nǎr?",mn:"병원이 어디에 있어?",ls:"6"},
+{tx:"医院___学校旁边。",ans:"在",opts:["在","是","有","到","去"],py:"Yīyuàn zài xuéxiào pángbiān.",mn:"병원은 학교 옆에 있어.",ls:"6"},
+{tx:"你去医院看___吧。",ans:"看",opts:["看","去","来","好","走"],py:"Nǐ qù yīyuàn kànkan ba.",mn:"병원에 가봐.",ls:"6"},
+{tx:"我有点儿头___。",ans:"疼",opts:["疼","痛","病","烧","嗽"],py:"Wǒ yǒudiǎnr tóuténg.",mn:"나 머리가 좀 아파.",ls:"6"},
+{tx:"银行在超市___边。",ans:"左",opts:["左","右","前","后","旁"],py:"Yínháng zài chāoshì zuǒbiān.",mn:"은행은 슈퍼마켓 왼쪽에 있어.",ls:"6"},
+{tx:"洗手间在前___。",ans:"边",opts:["边","面","方","里","旁"],py:"Xǐshǒujiān zài qiánbiān.",mn:"화장실은 앞쪽에 있어.",ls:"6"},
+{tx:"硬___是普通座位。",ans:"座",opts:["座","卧","铺","床","席"],py:"Yìngzuò shì pǔtōng zuòwèi.",mn:"硬座는 일반 좌석이야.",ls:"6"},
+];
+
+const TN=['1성 (—)','2성 (/)','3성 (∨)','4성 (\\)','경성 (·)'];
+const LB=['①','②','③','④','⑤'];
+let U=new Set();
+let fL='all',fI=0,fF=false,fList=[...W];
+let qT='mn',qL='all',qList=[],qI=0,qS=0;
+let tSrc='all',tList=[],tI=0,tS=0;
+let pSrc='all',pList=[],pI=0,pS=0;
+
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const gW=l=>l==='wr'?W.filter(w=>U.has(w.hz)):l==='all'?[...W]:W.filter(w=>w.ls===l);
+
+function UB(){
+  const n=U.size,b=document.getElementById('wb');
+  b.textContent=n;b.style.display=n?'inline':'none';
+  ['twc','pwc'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=n?'('+n+')':'';});
+}
+
+function ST(t,el){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');document.getElementById(t).classList.add('active');
+  if(t==='flash')IF();if(t==='q5')IQ5();if(t==='tone')ITone();
+  if(t==='py')IPy();if(t==='wr')RWr();if(t==='voc')IVoc();
+}
+
+/* ── FLASH ── */
+function IF(){
+  const ls=['all','4','5','6'],lb=['전체','4과','5과','6과'];
+  document.getElementById('ff').innerHTML=ls.map((l,i)=>
+    `<button class="fb${fL===l?' active':''}" onclick="SFL('${l}',this)">${lb[i]}</button>`).join('');
+  fList=gW(fL);fI=0;fF=false;SFC();
+}
+function SFL(l,b){fL=l;document.querySelectorAll('#ff .fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');fList=gW(l);fI=0;fF=false;SFC();}
+function SFC(){
+  if(!fList.length){document.getElementById('fh').textContent='단어 없음';document.getElementById('fback').style.display='none';document.getElementById('fhint').textContent='';document.getElementById('kr').style.display='none';return;}
+  const w=fList[fI],p=Math.round((fI+1)/fList.length*100);
+  document.getElementById('fp').innerHTML=`<span>${fI+1}/${fList.length}</span><span style="color:${U.has(w.hz)?'#e24b4a':'#aaa'}">${U.has(w.hz)?'⚠ 오답':w.ls+'과'}</span>`;
+  document.getElementById('fpb').style.width=p+'%';
+  document.getElementById('fh').textContent=w.hz;
+  document.getElementById('fy').textContent=w.py;
+  document.getElementById('ft').textContent='성조: '+w.tn;
+  document.getElementById('fm').textContent=w.mn;
+  document.getElementById('fl').textContent=w.ls+'과';
+  document.getElementById('fback').style.display='none';
+  document.getElementById('fhint').textContent='클릭해서 뒤집기 ↩';
+  document.getElementById('kr').style.display='none';fF=false;
+}
+function FC(){if(!fList.length)return;fF=!fF;document.getElementById('fback').style.display=fF?'block':'none';document.getElementById('fhint').textContent=fF?'':'클릭해서 뒤집기 ↩';document.getElementById('kr').style.display=fF?'flex':'none';}
+function MK(){U.delete(fList[fI].hz);UB();NC();}
+function MD(){U.add(fList[fI].hz);UB();NC();}
+function NC(){fI=(fI+1)%fList.length;SFC();}
+function PC(){fI=(fI-1+fList.length)%fList.length;SFC();}
+function SH(){fList=sh(fList);fI=0;SFC();}
+
+/* ── 5지선다 ── */
+function SQT(t,b){qT=t;document.querySelectorAll('#q5tp button').forEach(x=>x.classList.remove('active'));b.classList.add('active');IQ5();}
+function IQ5(){
+  const ls=['all','4','5','6'],lb=['전체','4과','5과','6과'];
+  document.getElementById('q5lf').innerHTML=ls.map((l,i)=>
+    `<button class="fb${qL===l?' active':''}" onclick="SQL('${l}',this)">${lb[i]}</button>`).join('');
+  BQ5();
+}
+function SQL(l,b){qL=l;document.querySelectorAll('#q5lf .fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');BQ5();}
+function BQ5(){
+  qI=0;qS=0;
+  ['q5sc','q5ex'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('q5nw').style.display='none';
+  if(qT==='st'){
+    let p=qL==='all'?[...SENTS]:SENTS.filter(s=>s.ls===qL);
+    qList=sh(p).slice(0,Math.min(15,p.length));
+  } else if(qT==='wr'){
+    qList=sh(W.filter(w=>U.has(w.hz))).slice(0,20);
+  } else {
+    qList=sh(gW(qL)).slice(0,20);
+  }
+  if(!qList.length){
+    document.getElementById('q5qm').className='q-main';
+    document.getElementById('q5qm').textContent='문제 없음';
+    document.getElementById('q5qt').textContent='';
+    document.getElementById('q5op').innerHTML='<p style="color:#888;font-size:13px">해당 단어/문장이 없어요.</p>';
+    return;
+  }
+  SQ5();
+}
+function SQ5(){
+  if(qI>=qList.length){ScQ5();return;}
+  const p=Math.round(qI/qList.length*100);
+  document.getElementById('q5pr').innerHTML=`<span>문제 ${qI+1}/${qList.length}</span><span>점수: ${qS}</span>`;
+  document.getElementById('q5pb').style.width=p+'%';
+  document.getElementById('q5nw').style.display='none';
+  document.getElementById('q5ex').style.display='none';
+  document.getElementById('q5sc').style.display='none';
+  const item=qList[qI];
+  if(qT==='st')BSt(item);
+  else if(qT==='mn')BMn(item);
+  else if(qT==='hz')BHz(item);
+  else if(qT==='py')BPy(item);
+  else if(qT==='tn')BTn(item);
+  else BMn(item);
+}
+function BMn(w){
+  document.getElementById('q5qt').textContent='뜻 고르기 — 이 단어·표현의 뜻은?';
+  document.getElementById('q5qm').className='q-main';document.getElementById('q5qm').textContent=w.hz;
+  document.getElementById('q5qs').textContent=w.py;
+  const c=w.mn,pool=sh(W.filter(x=>x.mn!==c&&x.hz!==w.hz).map(x=>x.mn)).slice(0,4);
+  RO(sh([...pool,c]),c,w,`뜻: ${c} | 병음: ${w.py}`);
+}
+function BHz(w){
+  document.getElementById('q5qt').textContent='한자 고르기 — 이 뜻에 맞는 한자는?';
+  document.getElementById('q5qm').className='q-main';document.getElementById('q5qm').textContent=w.mn;
+  document.getElementById('q5qs').textContent='';
+  const c=w.hz,pool=sh(W.filter(x=>x.hz!==c&&x.ls===w.ls).map(x=>x.hz)).slice(0,4);
+  RO(sh([...pool,c]),c,w,`정답: ${c} (${w.py})`);
+}
+function BPy(w){
+  document.getElementById('q5qt').textContent='병음 고르기 — 이 한자의 병음은? (성조 주의!)';
+  document.getElementById('q5qm').className='q-main';document.getElementById('q5qm').textContent=w.hz;
+  document.getElementById('q5qs').textContent=w.mn;
+  const c=w.py,pool=sh(W.filter(x=>x.py!==c).map(x=>x.py)).slice(0,4);
+  RO(sh([...pool,c]),c,w,`정답: ${c} | 뜻: ${w.mn}`);
+}
+function BTn(w){
+  const ft=w.tn.split(' ')[0];
+  const c=ft==='0'?'경성 (·)':TN[parseInt(ft)-1];
+  document.getElementById('q5qt').textContent='성조 고르기 — 첫 글자 성조는? (병음은 정답 후 공개!)';
+  document.getElementById('q5qm').className='q-main';document.getElementById('q5qm').textContent=w.hz;
+  // 성조 문제는 병음/뜻을 미리 보여주면 답이 보이므로 숨김
+  document.getElementById('q5qs').textContent='';
+  let opts=[c];
+  while(opts.length<5){const r=TN[Math.floor(Math.random()*5)];if(!opts.includes(r))opts.push(r);}
+  RO(sh(opts),c,w,`정답: ${c} | 병음: ${w.py} | 뜻: ${w.mn} | 전체 성조: ${w.tn}`);
+}
+function BSt(s){
+  document.getElementById('q5qt').textContent='문장 완성 — 빈칸 ___에 알맞은 글자는?';
+  document.getElementById('q5qm').className='q-main sent';document.getElementById('q5qm').textContent=s.tx;
+  document.getElementById('q5qs').textContent='뜻: '+s.mn;
+  const c=s.ans;
+  let opts=[...s.opts];
+  if(!opts.includes(c))opts.push(c);
+  opts=sh(opts).slice(0,5);
+  if(!opts.includes(c))opts[4]=c;
+  RO(sh(opts),c,null,`정답: ${c} | ${s.py}`);
+}
+function RO(opts,c,w,ex){
+  // data-val 속성으로 정답 비교 — 텍스트 슬라이싱 오류 방지
+  const safeC=encodeURIComponent(c);
+  const safeHz=w?encodeURIComponent(w.hz||''):'';
+  document.getElementById('q5op').innerHTML=opts.map((o,i)=>{
+    const safeO=encodeURIComponent(o);
+    return `<button class="opt" data-val="${safeO}" onclick="CQ5(this,'${safeO}','${safeC}','${safeHz}')"><span class="ol">${LB[i]}</span>${o}</button>`;
+  }).join('');
+  document.getElementById('q5ex').textContent=ex;
+}
+function CQ5(btn,selEnc,cEnc,hzEnc){
+  const sel=decodeURIComponent(selEnc),c=decodeURIComponent(cEnc),hz=decodeURIComponent(hzEnc);
+  document.querySelectorAll('#q5op .opt').forEach(b=>{b.classList.add('dis');b.onclick=null;});
+  const ok=sel===c;
+  if(ok){btn.classList.add('ok');qS++;if(hz)U.delete(hz);}
+  else{
+    btn.classList.add('ng');
+    if(hz)U.add(hz);
+    // data-val로 정확히 정답 버튼 찾기
+    document.querySelectorAll('#q5op .opt').forEach(b=>{
+      if(decodeURIComponent(b.dataset.val)===c) b.classList.add('ok');
+    });
+  }
+  UB();document.getElementById('q5ex').style.display='block';qI++;document.getElementById('q5nw').style.display='block';
+}
+function NQ5(){SQ5();}
+function ScQ5(){
+  ['q5op','q5qm','q5qt','q5qs'].forEach(id=>{const el=document.getElementById(id);el.textContent='';if(id==='q5op')el.innerHTML='';});
+  document.getElementById('q5nw').style.display='none';document.getElementById('q5ex').style.display='none';
+  const p=Math.round(qS/qList.length*100),msg=p>=90?'완벽해요! 🎉':p>=70?'잘 했어요! 👍':'더 연습해봐요! 💪';
+  document.getElementById('q5sc').style.display='block';
+  document.getElementById('q5sc').innerHTML=`<div class="score-box"><div class="score-num">${qS}/${qList.length}</div><div style="font-size:15px;color:#666;margin-top:6px">${p}% · ${msg}</div>${U.size?`<p style="font-size:12px;color:#e24b4a;margin-top:6px">오답 ${U.size}개 오답노트 저장됨</p>`:''}<div style="display:flex;gap:7px;justify-content:center;margin-top:1rem;flex-wrap:wrap"><button class="btn prim" onclick="BQ5()">다시 풀기</button><button class="btn" onclick="RW('q5')">오답만 재시험</button></div></div>`;
+}
+
+/* ── 성조 ── */
+function TSrc(s,b){tSrc=s;document.querySelectorAll('#tone .fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');ITone();}
+function ITone(){
+  UB();const pool=tSrc==='wr'?W.filter(w=>U.has(w.hz)):[...W];
+  if(!pool.length){document.getElementById('tq').textContent='오답 없음';document.getElementById('top').innerHTML='<p style="color:#888;font-size:13px">오답 노트가 비어있어요.</p>';return;}
+  tList=sh(pool).slice(0,Math.min(20,pool.length));tI=0;tS=0;
+  document.getElementById('tsc').style.display='none';document.getElementById('tnw').style.display='none';STQ();
+}
+function makeToneStr(tn){
+  // "3 0 1 4" → "3성·경성·1성·4성" 형태로 변환
+  return tn.split(' ').map(t=>t==='0'?'경성(·)':t+'성').join(' - ');
+}
+function genToneOpts(correct, allWords){
+  // 오답 보기: 비슷한 길이의 다른 성조 조합으로 헷갈리게 생성
+  const tnLen = correct.split(' ').length;
+  const pool = allWords
+    .filter(w => w.tn !== correct && w.tn.split(' ').length === tnLen)
+    .map(w => makeToneStr(w.tn));
+  const unique = [...new Set(pool)];
+  const wrongs = sh(unique).slice(0, 4);
+  let opts = [makeToneStr(correct), ...wrongs].slice(0,5);
+  // 5개 못 채우면 랜덤 성조로 채우기
+  const tones = ['1','2','3','4','0'];
+  while(opts.length < 5){
+    const fake = Array.from({length:tnLen},()=>tones[Math.floor(Math.random()*5)]).join(' ');
+    const fakeStr = makeToneStr(fake);
+    if(!opts.includes(fakeStr)) opts.push(fakeStr);
+  }
+  return sh(opts).slice(0,5);
+}
+
+function STQ(){
+  if(tI>=tList.length){ScTone();return;}
+  const w=tList[tI],p=Math.round(tI/tList.length*100);
+  document.getElementById('tpr').innerHTML=`<span>문제 ${tI+1}/${tList.length}</span><span>점수: ${tS}</span>`;
+  document.getElementById('tpb').style.width=p+'%';
+  document.getElementById('tq').textContent=w.hz;
+  // 뜻은 힌트로 작게 표시 (병음은 숨김 — 성조 유추 방지)
+  document.getElementById('tq').title=w.mn;
+
+  const correct=w.tn; // 전체 성조 문자열
+  const correctStr=makeToneStr(correct);
+  const opts=genToneOpts(correct, tList);
+
+  const safeHz=encodeURIComponent(w.hz);
+  const safeC=encodeURIComponent(correctStr);
+  document.getElementById('top').innerHTML=opts.map((o,i)=>{
+    const safeO=encodeURIComponent(o);
+    return `<button class="opt" data-val="${safeO}" onclick="CTone(this,'${safeO}','${safeC}','${safeHz}')"><span class="ol">${LB[i]}</span>${o}</button>`;
+  }).join('');
+  // 뜻 힌트 표시 (병음은 정답 후 공개)
+  document.getElementById('tone-hint').textContent='뜻: '+w.mn;
+  document.getElementById('tnw').style.display='none';
+}
+function CTone(btn,selEnc,cEnc,hzEnc){
+  const sel=decodeURIComponent(selEnc),c=decodeURIComponent(cEnc),hz=decodeURIComponent(hzEnc);
+  const w=W.find(x=>x.hz===hz)||tList[tI-1]||{py:'',tn:''};
+  document.querySelectorAll('#tone .opt').forEach(b=>{b.classList.add('dis');b.onclick=null;});
+  if(sel===c){btn.classList.add('ok');tS++;U.delete(hz);}
+  else{
+    btn.classList.add('ng');U.add(hz);
+    document.querySelectorAll('#tone .opt').forEach(b=>{
+      if(decodeURIComponent(b.dataset.val)===c) b.classList.add('ok');
+    });
+  }
+  // 정답 후 병음 공개
+  document.getElementById('tone-hint').textContent=`뜻: ${w.mn} | 병음: ${w.py} | 성조: ${w.tn}`;
+  UB();tI++;document.getElementById('tnw').style.display='block';
+}
+function NTQ(){STQ();}
+function ScTone(){
+  document.getElementById('top').innerHTML='';document.getElementById('tq').textContent='';document.getElementById('tnw').style.display='none';
+  const p=Math.round(tS/tList.length*100);
+  document.getElementById('tsc').style.display='block';
+  document.getElementById('tsc').innerHTML=`<div class="score-box"><div class="score-num">${tS}/${tList.length}</div><div style="font-size:14px;color:#666;margin-top:6px">${p}% 정답</div><button class="btn prim" style="margin-top:1rem" onclick="ITone()">다시 풀기</button></div>`;
+}
+
+/* ── 병음 ── */
+function PSrc(s,b){pSrc=s;document.querySelectorAll('#py .fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');IPy();}
+function IPy(){
+  UB();const pool=pSrc==='wr'?W.filter(w=>U.has(w.hz)):[...W];
+  if(!pool.length){document.getElementById('pq').textContent='오답 없음';return;}
+  pList=sh(pool).slice(0,Math.min(15,pool.length));pI=0;pS=0;
+  document.getElementById('psc').style.display='none';document.getElementById('pfd').style.display='none';
+  document.getElementById('pi').value='';
+  document.getElementById('pi').onkeydown=e=>{if(e.key==='Enter')CP();};
+  SPQ();
+}
+function SPQ(){
+  if(pI>=pList.length){ScPy();return;}
+  const p=Math.round(pI/pList.length*100);
+  document.getElementById('ppr').innerHTML=`<span>문제 ${pI+1}/${pList.length}</span><span>점수: ${pS}</span>`;
+  document.getElementById('ppb').style.width=p+'%';
+  document.getElementById('pq').textContent=pList[pI].hz;
+  document.getElementById('pfd').style.display='none';
+  document.getElementById('pi').value='';
+  document.getElementById('pi').focus();
+}
+function np(s){return s.toLowerCase().replace(/[āáǎà]/g,'a').replace(/[ēéěè]/g,'e').replace(/[īíǐì]/g,'i').replace(/[ōóǒò]/g,'o').replace(/[ūúǔù]/g,'u').replace(/[ǜǚǘǖ]/g,'v').replace(/[1-4\s·]/g,'').trim();}
+function CP(){
+  const v=document.getElementById('pi').value.trim();if(!v)return;
+  const w=pList[pI],ok=np(v)===np(w.py);
+  const fd=document.getElementById('pfd');fd.style.display='block';fd.className='fd '+(ok?'ok':'ng');
+  fd.textContent=(ok?'✓ 정답! ':'✗ 정답: ')+w.py+' ('+w.mn+')';
+  if(ok){pS++;U.delete(w.hz);}else U.add(w.hz);
+  UB();pI++;document.getElementById('pi').onkeydown=null;
+  setTimeout(()=>{document.getElementById('pi').onkeydown=e=>{if(e.key==='Enter')CP();};if(pI>=pList.length)ScPy();else SPQ();},1800);
+}
+function SP(){pI++;if(pI>=pList.length)ScPy();else SPQ();}
+function ScPy(){
+  const p=Math.round(pS/pList.length*100);
+  document.getElementById('psc').style.display='block';
+  document.getElementById('psc').innerHTML=`<div class="score-box" style="margin-top:.8rem"><div class="score-num">${pS}/${pList.length}</div><div style="font-size:14px;color:#666;margin-top:6px">${p}% 정답</div><button class="btn prim" style="margin-top:1rem" onclick="IPy()">다시 풀기</button></div>`;
+}
+
+/* ── 오답노트 ── */
+function RW(mode){
+  if(!U.size){alert('오답 노트가 비어있어요!');return;}
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  if(mode==='q5'){
+    document.getElementById('t-q5').classList.add('active');document.getElementById('q5').classList.add('active');
+    document.querySelectorAll('#q5tp button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('#q5tp button')[5].classList.add('active');
+    qT='wr';BQ5();
+  } else if(mode==='tone'){
+    document.getElementById('t-tone').classList.add('active');document.getElementById('tone').classList.add('active');
+    tSrc='wr';document.getElementById('ta-all').classList.remove('active');document.getElementById('ta-wr').classList.add('active');ITone();
+  } else {
+    document.getElementById('t-py').classList.add('active');document.getElementById('py').classList.add('active');
+    pSrc='wr';document.getElementById('pa-all').classList.remove('active');document.getElementById('pa-wr').classList.add('active');IPy();
+  }
+}
+function RWr(){
+  UB();const list=W.filter(w=>U.has(w.hz));
+  document.getElementById('wt').textContent=`오답 노트 (${list.length}개)`;
+  if(!list.length){document.getElementById('wl').innerHTML='<div class="empty-state"><div style="font-size:40px">✅</div><p style="margin-top:10px">오답 노트가 비어있어요!</p><p style="font-size:12px;margin-top:5px;color:#bbb">퀴즈에서 틀리거나 플래시카드에서<br>몰라요를 누르면 자동 추가됩니다</p></div>';return;}
+  document.getElementById('wl').innerHTML=`<div class="word-grid">${list.map(w=>{
+    const safe=encodeURIComponent(w.hz);
+    return `<div class="wcard unk"><div class="whz">${w.hz}</div><div class="wpy">${w.py}</div><div class="wmn">${w.mn}</div><div class="wls">${w.ls}과 · 성조: ${w.tn}</div><div style="display:flex;gap:5px;justify-content:center;margin-top:5px"><button class="speak-sm" onclick="speakText(decodeURIComponent('${safe}'))">🔊</button><button style="font-size:11px;padding:2px 7px;border:1px solid #1d9e75;border-radius:20px;background:transparent;cursor:pointer;color:#085041" onclick="DW(decodeURIComponent('${safe}'))">삭제</button></div></div>`;
+  }).join('')}</div>`;
+}
+function DW(hz){U.delete(hz);UB();RWr();}
+function CW(){U.clear();UB();RWr();}
+
+/* ── 단어장 ── */
+function IVoc(){
+  document.getElementById('vtot').textContent=W.length;
+  document.getElementById('v4').textContent=W.filter(w=>w.ls==='4').length;
+  document.getElementById('v5').textContent=W.filter(w=>w.ls==='5').length;
+  document.getElementById('v6').textContent=W.filter(w=>w.ls==='6').length;
+  RV('all');
+}
+function FV(l,b){document.querySelectorAll('#voc .fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');RV(l);}
+function RV(l){
+  const list=gW(l);
+  document.getElementById('vg').innerHTML=list.length?list.map(w=>{
+    const safe=encodeURIComponent(w.hz);
+    return `<div class="wcard${U.has(w.hz)?' unk':''}"><div class="whz">${w.hz}</div><div class="wpy">${w.py}</div><div class="wmn">${w.mn}</div><div class="wls">${w.ls}과</div><button class="speak-sm" onclick="speakText(decodeURIComponent('${safe}'))">🔊</button></div>`;
+  }).join(''):'<p style="color:#888;font-size:13px">단어 없음</p>';
+}
+
+/* ── TTS 엔진 ── */
+let ttsVoice = null;
+let ttsReady = false;
+
+function initTTS() {
+  if (!window.speechSynthesis) return;
+  const load = () => {
+    const voices = speechSynthesis.getVoices();
+    // 중국어 음성 우선순위: zh-CN > zh-TW > zh
+    const prefer = ['zh-CN','zh_CN','zh-TW','zh_TW','zh'];
+    for (const code of prefer) {
+      const v = voices.find(v => v.lang.startsWith(code.replace('_','-')) || v.lang === code);
+      if (v) { ttsVoice = v; ttsReady = true; break; }
+    }
+    if (!ttsReady && voices.length) {
+      // 마지막 수단: lang에 'zh' 포함된 것
+      ttsVoice = voices.find(v => v.lang.toLowerCase().includes('zh')) || null;
+      ttsReady = !!ttsVoice;
+    }
+    if (!ttsReady) {
+      document.querySelectorAll('#tts-notice').forEach(el => el.style.display = 'block');
+    }
+  };
+  if (speechSynthesis.getVoices().length) load();
+  speechSynthesis.onvoiceschanged = load;
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  // 한자/병음만 추출 (한국어 제거)
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = ttsVoice ? ttsVoice.lang : 'zh-CN';
+  if (ttsVoice) u.voice = ttsVoice;
+  u.rate = 0.85;
+  u.pitch = 1;
+
+  const btn = document.querySelector('.speak-btn.speaking');
+  if (btn) btn.classList.remove('speaking');
+
+  u.onstart = () => {
+    document.querySelectorAll('.speak-btn').forEach(b => b.classList.remove('speaking'));
+  };
+  u.onend = () => {
+    document.querySelectorAll('.speak-btn').forEach(b => b.classList.remove('speaking'));
+  };
+  speechSynthesis.speak(u);
+}
+
+function speakCurrent() {
+  const hz = document.getElementById('fh').textContent;
+  if (!hz || hz === '단어 없음') return;
+  const btn = document.getElementById('flash-speak-btn');
+  btn.classList.add('speaking');
+  if (!ttsReady) {
+    document.getElementById('tts-notice').style.display = 'block';
+    btn.classList.remove('speaking');
+    return;
+  }
+  speak(hz);
+  setTimeout(() => btn.classList.remove('speaking'), 2000);
+}
+
+function speakEl(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.textContent.trim();
+  if (!text || text === '문제 없음') return;
+  // 빈칸(___) 제거하고 읽기
+  const clean = text.replace(/___/g, '').trim();
+  speak(clean);
+}
+
+function speakText(text) {
+  speak(text);
+}
+
+initTTS();
+
+IF();IVoc();UB();
+</script>
+</body>
+</html>
